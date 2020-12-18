@@ -10,14 +10,13 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 const DB = process.env.DB.replace('<password>', process.env.DB_PSWD)
 
-mongoose
-.connect(DB, {
+mongoose.connect(DB, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
   useUnifiedTopology: true,
 })
-.then(() => console.log('DB connnection successful!'))
+.then(() => console.log('DB connnection successful'))
 
 const playerSchema = new mongoose.Schema({
   name: String,

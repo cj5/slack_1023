@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "nodemon app.js",
+    "start": "npm serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
