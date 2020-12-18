@@ -44,12 +44,13 @@ const updatePlayerPoints = (req, res, name) => {
 }
 
 app.post('/', (req, res) => {
+  res.status(200).send(req.body.challenge)
+
   updatePlayerPoints(req, res, 'Chris')
 })
 
-app.post('/challenge', (req, res) => {
-  console.log(JSON.stringify(req.body, null, 2))
-  res.status(200).send(req.body.challenge)
+app.get('/', (req, res) => {
+  res.send('Slack 1023 app')
 })
 
 app.listen(port, () => {
