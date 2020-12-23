@@ -3,7 +3,6 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
 const mongoose = require('mongoose')
-const bodyParser = require('body-parser')
 const { format } = require('date-fns')
 const fromUnixTime = require('date-fns/fromUnixTime')
 
@@ -28,9 +27,6 @@ mongoose.connect(DB, {
 const playerSchema = new mongoose.Schema({
   name: String,
   points: Number,
-  win_solo: Number,
-  win_shared_1: Number,
-  win_shared_2: Number
 })
 const Player = mongoose.model('Player', playerSchema)
 // **END** DATABASE
@@ -38,115 +34,106 @@ const Player = mongoose.model('Player', playerSchema)
 
 // %%%%%%%%%%%%%%%%%%%%%%%
 // GLOBAL VARIABLES
+const testUser = 'U01HD50K9HB' // CJ2
 const alex = 'U1FA8UTV2'
 const chris = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
-let slackTime
-let slackTime_hrsMins
+let slackTime_hm
+let slackTime_s
 let channelId
 let response
-const timeout = 5000
+const timeout = 60000
+let userState = [{
+  user: 'Alex',
+  pts: 0,
+  totalPts: 0,
+}, {
+  user: 'Chris',
+  pts: 0,
+  totalPts: 0,
+}, {
+  user: 'John',
+  pts: 0,
+  totalPts: 0,
+}]
 // **END** GLOBAL VARIABLES
 // %%%%%%%%%%%%%%%%%%%%%%%
 
 // %%%%%%%%%%%%%%%%%%%%%%%
 // FUNCTIONS
-const updatePlayerPoints = (req, res, name) => {
-  Player.findOneAndUpdate(
-    { name },
-    req.body,
+const updatePlayerPoints = async (user, pts) => {
+  const doc = await Player.findOne({ name: user })
+  let totalPts = doc.points += pts
+
+  await Player.findOneAndUpdate(
+    { name: user },
+    { points: totalPts },
     { new: true },
-    (err, doc) => {
-      if (err) {
-        res.send(err)
-      } else {
-        res.send(JSON.stringify(doc, null, 2))
-      }
-    }
   )
 }
 
 const checkTime = (timeFromSlack) => {
   const timeFull = fromUnixTime(timeFromSlack)
-  slackTime = format(timeFull, 'h:mm:ss')
-  slackTime_hrsMins = format(timeFull, 'h:mm')
+  slackTime_hm = format(timeFull, 'h:mm')
+  slackTime_s = format(timeFull, 'ss')
 }
 
 const updateUserState = (user) => {
-  let winners = 1
-
   userState.map(x => {
     if (x.user === user && x.pts === 0) {
-      userState.map(y => {
-        if (y.pts > 0) {
-          winners++
-        }
-      })
-
-      if (winners === 1) {
-        x.pts = 3
-      } else if (winners === 2) {
-        x.pts = 1.5
-      } else if (winners === 3) {
-        x.pts = 1
-      }
+      x.pts = 60 - slackTime_s
     }
-
-    userState.map(x => {
-      if (winners === 2 && x.pts > 0) {
-        x.pts = 1.5
-      } else if (winners === 3 && x.pts > 0) {
-        x.pts = 1
-      }
-    })
   })
 }
 
-const resetState = () => {
-  userState.map(x => x.pts = 0)
-  console.log('resetState()')
+const updateUserTotalPoints = async (user, pts) => {
+  const doc = await Player.findOne({ name: user })
+  let totalPts = doc.points += pts
+
+  userState.map(x => {
+    if (x.user === user) {
+      x.totalPts = totalPts
+    }
+  })
 }
 // **END** FUNCTIONS
 // %%%%%%%%%%%%%%%%%%%%%%%
 
 // %%%%%%%%%%%%%%%%%%%%%%%
-// USER STATE
-let userState = [{
-  user: 'alex',
-  pts: 0
-}, {
-  user: 'chris',
-  pts: 0
-}, {
-  user: 'john',
-  pts: 0
-}]
-// **END** USER STATE
-// %%%%%%%%%%%%%%%%%%%%%%%
-
-// %%%%%%%%%%%%%%%%%%%%%%%
 // SLACK INTERACTION
-slackEvents.on('message', (e) => {
-  if (e.text === 'a') {
+slackEvents.on('message', async (e) => {
+  console.log('Slack EVENT')
+  if (e.text === 'a' || e.text === ':1023:') {
     channelId = e.channel
 
     checkTime(e.ts)
 
     const targetTime = format(new Date(), 'h:mm')
+    // const targetTime = '10:23'
 
-    if (slackTime_hrsMins === targetTime) {
-      if (e.user === alex) {
-        user = 'Alex'
-        updateUserState('alex')
+    if (slackTime_hm === targetTime) {
+      if (e.user === alex || e.user === testUser) {
+        updateUserState('Alex')
       } else if (e.user === chris) {
-        user = 'CJ'
-        updateUserState('chris')
+        updateUserState('Chris')
       } else if (e.user === john) {
-        user = 'John'
-        updateUserState('john')
+        updateUserState('John')
       }
 
-      response = `\nAlex: ${userState[0].pts}\nCJ: ${userState[1].pts}\nJohn: ${userState[2].pts}`
+      await updateUserTotalPoints('Alex', userState[0].pts)
+      await updateUserTotalPoints('Chris', userState[1].pts)
+      await updateUserTotalPoints('John', userState[2].pts)
+
+      response =
+`_ROUND SCORES_:
+*Alex* — \`${userState[0].pts}\`
+*CJ__* — \`${userState[1].pts}\`
+*John* — \`${userState[2].pts}\`
+
+_RUNNING TOTALS_:
+*Alex* — \`${userState[0].totalPts}\`
+*CJ__* — \`${userState[1].totalPts}\`
+*John* — \`${userState[2].totalPts}\``
     } else {
       response = `Not posted at ${targetTime}`
     }
@@ -167,6 +154,11 @@ function post() {
           text: response,
           channel: channelId,
         })
+
+        await updatePlayerPoints('Alex', userState[0].pts)
+        await updatePlayerPoints('Chris', userState[1].pts)
+        await updatePlayerPoints('John', userState[2].pts)
+
         process.exit(1)
       } catch (err) {
         console.log('ERROR:', err)
@@ -174,10 +166,6 @@ function post() {
     })()
   }, timeout)
 }
-
-app.get('/', (req, res) => {
-  res.send('Slack 1023 app')
-})
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`)
