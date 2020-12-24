@@ -4,4 +4,12 @@
   — e.g. 10:23:03 = 57 pts
   — penalty for outside of 10:23 (prob limited only to 10:22 or 10:24)
 
-[O] Display in Slack round score along with running score
+[X] Display in Slack, round score along with running score
+
+[O] Display in Slack, the users sorted by score
+
+[O] Track total rounds played in DB
+
+[O] Add slash commands so users can look up stats
+
+[O] Make the timeout more accurate

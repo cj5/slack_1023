@@ -42,7 +42,8 @@ let slackTime_hm
 let slackTime_s
 let channelId
 let response
-const timeout = 60000
+let winners = 0
+let timeout = 60000
 let userState = [{
   user: 'Alex',
   pts: 0,
@@ -78,10 +79,15 @@ const checkTime = (timeFromSlack) => {
   slackTime_s = format(timeFull, 'ss')
 }
 
-const updateUserState = (user) => {
+const updateUserPoints = (user) => {
   userState.map(x => {
+    let diff
     if (x.user === user && x.pts === 0) {
-      x.pts = 60 - slackTime_s
+      diff = 60 - slackTime_s
+      x.pts = diff
+      winners++
+      if (winners === 1) timeout = diff * 1000 - 1500
+      console.log(`timeout: ${timeout}, winners: ${winners}`)
     }
   })
 }
@@ -96,55 +102,8 @@ const updateUserTotalPoints = async (user, pts) => {
     }
   })
 }
-// **END** FUNCTIONS
-// %%%%%%%%%%%%%%%%%%%%%%%
 
-// %%%%%%%%%%%%%%%%%%%%%%%
-// SLACK INTERACTION
-slackEvents.on('message', async (e) => {
-  console.log('Slack EVENT')
-  if (e.text === 'a' || e.text === ':1023:') {
-    channelId = e.channel
-
-    checkTime(e.ts)
-
-    const targetTime = format(new Date(), 'h:mm')
-    // const targetTime = '10:23'
-
-    if (slackTime_hm === targetTime) {
-      if (e.user === alex || e.user === testUser) {
-        updateUserState('Alex')
-      } else if (e.user === chris) {
-        updateUserState('Chris')
-      } else if (e.user === john) {
-        updateUserState('John')
-      }
-
-      await updateUserTotalPoints('Alex', userState[0].pts)
-      await updateUserTotalPoints('Chris', userState[1].pts)
-      await updateUserTotalPoints('John', userState[2].pts)
-
-      response =
-`_ROUND SCORES_:
-*Alex* — \`${userState[0].pts}\`
-*CJ__* — \`${userState[1].pts}\`
-*John* — \`${userState[2].pts}\`
-
-_RUNNING TOTALS_:
-*Alex* — \`${userState[0].totalPts}\`
-*CJ__* — \`${userState[1].totalPts}\`
-*John* — \`${userState[2].totalPts}\``
-    } else {
-      response = `Not posted at ${targetTime}`
-    }
-
-    post()
-  }
-})
-// **END** SLACK INTERACTION
-// %%%%%%%%%%%%%%%%%%%%%%%
-
-function post() {
+const post = () => {
   setTimeout(() => {
     (async() => {
       try {
@@ -166,6 +125,60 @@ function post() {
     })()
   }, timeout)
 }
+// **END** FUNCTIONS
+// %%%%%%%%%%%%%%%%%%%%%%%
+
+// %%%%%%%%%%%%%%%%%%%%%%%
+// SLACK INTERACTION
+slackEvents.on('message', async (e) => {
+  console.log('Slack EVENT')
+  if (e.text === 'a' || e.text === ':1023:') {
+    const targetTime = format(new Date(), 'h:mm')
+    // const targetTime = '10:23'
+    channelId = e.channel
+    checkTime(e.ts)
+
+    if (e.user === 'U1FA8UTV2') {
+      console.log('Alex')
+    } else if (e.user === 'U1ESXHU6S') {
+      console.log('CJ')
+    } else if (e.user === 'U6AFFTWTH') {
+      console.log('John')
+    }
+
+    console.log(`slackTime_hm: ${slackTime_hm}, targetTime: ${targetTime}`)
+    // if (slackTime_hm === targetTime) {
+      if (e.user === alex) {
+        updateUserPoints('Alex')
+      } else if (e.user === chris) {
+        updateUserPoints('Chris')
+      } else if (e.user === john) {
+        updateUserPoints('John')
+      }
+
+      await updateUserTotalPoints('Alex', userState[0].pts)
+      await updateUserTotalPoints('Chris', userState[1].pts)
+      await updateUserTotalPoints('John', userState[2].pts)
+
+      response =
+`_ROUND SCORES_:
+*Alex* — \`${userState[0].pts}\`
+*CJ__* — \`${userState[1].pts}\`
+*John* — \`${userState[2].pts}\`
+
+_RUNNING TOTALS_:
+*Alex* — \`${userState[0].totalPts}\`
+*CJ__* — \`${userState[1].totalPts}\`
+*John* — \`${userState[2].totalPts}\``
+    // } else {
+      // response = `Not posted at ${targetTime}`
+    // }
+
+    post()
+  }
+})
+// **END** SLACK INTERACTION
+// %%%%%%%%%%%%%%%%%%%%%%%
 
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`)
