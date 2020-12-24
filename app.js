@@ -81,9 +81,9 @@ const checkTime = (timeFromSlack) => {
 
 const updateUserPoints = (user) => {
   userState.map(x => {
-    let diff
     if (x.user === user && x.pts === 0) {
-      diff = 60 - slackTime_s
+      console.log(user)
+      let diff = 60 - slackTime_s
       x.pts = diff
       winners++
       if (winners === 1) timeout = diff * 1000 - 1500
@@ -137,14 +137,6 @@ slackEvents.on('message', async (e) => {
     // const targetTime = '10:23'
     channelId = e.channel
     checkTime(e.ts)
-
-    if (e.user === 'U1FA8UTV2') {
-      console.log('Alex')
-    } else if (e.user === 'U1ESXHU6S') {
-      console.log('CJ')
-    } else if (e.user === 'U6AFFTWTH') {
-      console.log('John')
-    }
 
     console.log(`slackTime_hm: ${slackTime_hm}, targetTime: ${targetTime}`)
     // if (slackTime_hm === targetTime) {
