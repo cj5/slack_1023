@@ -15,7 +15,7 @@ app.use('/', slackEvents.requestListener())
 
 // %%%%%%%%%%%%%%%%%%%%%%%
 // DATABASE
-const db = require('./src/db')
+const db = require('./db')
 const Player = db.Player
 const Rounds = db.Rounds
 // **END** DATABASE

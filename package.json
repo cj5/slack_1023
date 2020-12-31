@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "forever -c \"nodemon --exitcrash\" app.js",
-    "start": "node app.js",
+    "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
+    "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
