@@ -10,7 +10,7 @@ const web = new WebClient(process.env.SLACK_OATH_TOKEN)
 const { createEventAdapter } = require('@slack/events-api')
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET
 const slackEvents = createEventAdapter(slackSigningSecret)
-const penaltyVal = 240
+const penaltyVal = 120
 app.use('/', slackEvents.requestListener())
 
 // %%%%%%%%%%%%%%%%%%%%%%%
@@ -23,13 +23,14 @@ const Rounds = db.Rounds
 
 // %%%%%%%%%%%%%%%%%%%%%%%
 // GLOBAL VARIABLES
-const testUser = 'U01HD50K9HB' // CJ2
+// const alex = 'U01HD50K9HB' // CJ2
 const alex = 'U1FA8UTV2'
-const cj = 'U1ESXHU6S' // 1798
+const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
 let slackTime_hm
+let slackTime_m
 let slackTime_s
-let channelId
+let channel
 let winners = 0
 let timeout = 0
 let userState = [{
@@ -56,6 +57,7 @@ let userState = [{
 const formatSlackTime = (timeFromSlack) => {
   const timeFull = fromUnixTime(timeFromSlack)
   slackTime_hm = format(timeFull, 'h:mm')
+  slackTime_m = format(timeFull, 'mm')
   slackTime_s = format(timeFull, 'ss')
 }
 
@@ -81,21 +83,22 @@ const updateUserPenalty = (user) => {
       x.penalty = true
     }
   })
+  console.log(`${user} committed a penalty`)
 }
 
 const updateUserPoints = (user) => {
   userState.map(x => {
     if (x.user === user && x.pts === 0) {
-      console.log(user)
       if (x.penalty) {
         x.pts = 0 - penaltyVal
       } else {
         let diff = 60 - slackTime_s
         x.pts = diff
         winners++
-        if (winners === 1) timeout = diff * 1000 - 1500
+        if (winners === 1) timeout = diff * 1000
         console.log(`timeout: ${timeout}, winners: ${winners}`)
       }
+      console.log(user, `— pts: ${x.pts}`)
     }
   })
 }
@@ -127,49 +130,35 @@ const updateRoundsPlayed = async () => {
   console.log('curr rounds played:', roundsPlayed)
 }
 
-const postToSlack = (text) => {
-  web.chat.postMessage({
-    text,
-    channel: channelId,
-  })
+const by = (property) => {
+  return (a, b) => {
+    let result = 0
+    if (a[property] < b[property]) {
+      result = 1
+    } else if (a[property] > b[property]) {
+      result = -1
+    }
+    return result
+  }
+}
+
+const postToSlack = async (text) => {
+  web.chat.postMessage({ text, channel })
 }
 
 const postToSlackAndUpdate = () => {
   setTimeout(() => {
     (async() => {
       try {
-        const comparePts = (a, b) => {
-          const c1 = a.pts
-          const c2 = b.pts
 
-          let comparison = 0
-          if (c1 > c2) {
-            comparison = 1
-          } else if (c1 < c2) {
-            comparison = -1
-          }
-          return comparison * -1
-        }
-        const sortByPts = [...userState].sort(comparePts)
+        const sortByPts = [...userState].sort(by('pts'))
 
         const roundScores =
 `*${sortByPts[0].user}* — \`${sortByPts[0].pts}\`
 *${sortByPts[1].user}* — \`${sortByPts[1].pts}\`
 *${sortByPts[2].user}* — \`${sortByPts[2].pts}\``
 
-        const compareTotalPts = (a, b) => {
-          const c1 = a.totalPts
-          const c2 = b.totalPts
-
-          let comparison = 0
-          if (c1 > c2) {
-            comparison = 1
-          } else if (c1 < c2) {
-            comparison = -1
-          }
-          return comparison * -1
-        }
-        const sortByTotalPts = [...userState].sort(compareTotalPts)
+        const sortByTotalPts = [...userState].sort(by('totalPts'))
 
         const totalScores =
 `*${sortByTotalPts[0].user}* — \`${sortByTotalPts[0].totalPts}\`
@@ -183,12 +172,9 @@ ${roundScores}
 _LEADERBOARD_:
 ${totalScores}`
 
-        await web.chat.postMessage({
-          text: response,
-          channel: channelId,
-        })
-
+        await postToSlack(response)
         await updateAllPlayerPoints()
+        await updateRoundsPlayed()
 
         process.exit(1)
       } catch (err) {
@@ -203,28 +189,21 @@ ${totalScores}`
 // %%%%%%%%%%%%%%%%%%%%%%%
 // SLACK INTERACTION
 slackEvents.on('message', async (e) => {
+  channel = e.channel
   console.log('Slack EVENT')
-  if (e.text === 'a' || e.text === ':1023:' || e.text === ':1023: ') {
+  if (e.text === ':1023:' || e.text === ':1023: ' || e.text === 'a') {
     // const targetTime = format(new Date(), 'h:mm')
     const targetTime = '10:23'
-    channelId = e.channel
     formatSlackTime(e.ts)
 
     if (
-      slackTime_hm === '1:23' ||
-      slackTime_hm === '2:23' ||
-      slackTime_hm === '3:23' ||
-      slackTime_hm === '4:23' ||
-      slackTime_hm === '5:23' ||
-      slackTime_hm === '6:23' ||
-      slackTime_hm === '7:23' ||
-      slackTime_hm === '8:23' ||
-      slackTime_hm === '9:23' ||
       slackTime_hm === '10:23' ||
-      slackTime_hm === '11:23' ||
-      slackTime_hm === '12:23'
+      slackTime_m === '00' ||
+      slackTime_m === '15' ||
+      slackTime_m === '30' ||
+      slackTime_m === '45'
     ) {
-      console.log(`slackTime_hm: ${slackTime_hm}, targetTime: ${targetTime}`)
+      console.log(`slackTime: ${slackTime_hm}:${slackTime_s}, targetTime: ${targetTime}`)
       if (e.user === alex) {
         updateUserPoints('Alex')
       } else if (e.user === cj) {
@@ -234,37 +213,39 @@ slackEvents.on('message', async (e) => {
       }
 
       await updateAllUserTotalPoints()
-      updateRoundsPlayed()
       postToSlackAndUpdate()
 
-    } else {
+    } else { // User posted outside 10:23
 
-      const penaltyMsg = `posted outside of XX:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
+      const penaltyMsg = `posted outside of 10:23, XX:00, XX:15, XX:30 or XX:45 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
       const penaltyEmoji = ':no_entry_sign:'
 
       if (e.user === alex) {
-        postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
+        await postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
         updateUserPenalty('Alex')
         updateUserPoints('Alex')
       } else if (e.user === cj) {
-        postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
+        await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
         updateUserPenalty('CJ')
         updateUserPoints('CJ')
       } else if (e.user === john) {
-        postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
+        await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
         updateUserPenalty('John')
         updateUserPoints('John')
       }
 
       await updateAllUserTotalPoints()
-      updateRoundsPlayed()
+      await updateRoundsPlayed()
       postToSlackAndUpdate()
     }
+  }
+  if (e.text === '1023') {
+    await postToSlack('hey, this should be 1023 game stats')
   }
 })
 // **END** SLACK INTERACTION
 // %%%%%%%%%%%%%%%%%%%%%%%
 
 app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}`)
+  console.log('Express app is up')
 })

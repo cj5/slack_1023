@@ -1,15 +1,15 @@
 [X] Handle case where user tries to post multiple :1023:s
 
-[O] Change scoring to points per second closest to 10:23
+[X] Change scoring to points per second closest to 10:23
   — e.g. 10:23:03 = 57 pts
   — penalty for outside of 10:23 (prob limited only to 10:22 or 10:24)
 
 [X] Display in Slack, round score along with running score
 
-[O] Display in Slack, the users sorted by score
+[X] Display in Slack, the users sorted by score
 
-[O] Track total rounds played in DB
+[X] Track total rounds played in DB
 
 [O] Add slash commands so users can look up stats
 
-[O] Make the timeout more accurate
+[X] Make the timeout more accurate
