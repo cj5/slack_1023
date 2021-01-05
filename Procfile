@@ -1,1 +1,1 @@
-web: node forever src/app.js
+web: forever node src/app.js
