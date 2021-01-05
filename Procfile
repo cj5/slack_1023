@@ -1,1 +1,1 @@
-web: forever -c \"nodemon --exitcrash\" src/app.js
+web: forever start
