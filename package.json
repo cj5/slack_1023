@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
-    "start": "forever node src/app.js",
+    "start": "forever src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
