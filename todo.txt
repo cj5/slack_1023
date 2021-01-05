@@ -10,6 +10,6 @@
 
 [X] Track total rounds played in DB
 
-[O] Add slash commands so users can look up stats
+[X] Add stat lookup functionality
 
 [X] Make the timeout more accurate

@@ -23,10 +23,11 @@ const Rounds = db.Rounds
 
 // %%%%%%%%%%%%%%%%%%%%%%%
 // GLOBAL VARIABLES
-// const alex = 'U01HD50K9HB' // CJ2
+// test user CJ2 = 'U01HD50K9HB'
 const alex = 'U1FA8UTV2'
 const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
+const line = '————————————————'
 let slackTime_hm
 let slackTime_m
 let slackTime_s
@@ -146,27 +147,43 @@ const postToSlack = async (text) => {
   web.chat.postMessage({ text, channel })
 }
 
+const displayTitle = () => {
+  return title = `
+${line}
+*10:23 GAME*  :clock1030:
+`
+}
+
+const displayByPoints = () => {
+  const sortByPts = [...userState].sort(by('pts'))
+
+  return roundScores = `
+*${sortByPts[0].user}* — \`${sortByPts[0].pts}\`
+*${sortByPts[1].user}* — \`${sortByPts[1].pts}\`
+*${sortByPts[2].user}* — \`${sortByPts[2].pts}\``
+}
+
+const displayByTotalPoints = () => {
+  const sortByTotalPts = [...userState].sort(by('totalPts'))
+
+  return totalScores = `
+*${sortByTotalPts[0].user}* — \`${sortByTotalPts[0].totalPts}\`
+*${sortByTotalPts[1].user}* — \`${sortByTotalPts[1].totalPts}\`
+*${sortByTotalPts[2].user}* — \`${sortByTotalPts[2].totalPts}\`
+${line}`
+}
+
 const postToSlackAndUpdate = () => {
   setTimeout(() => {
     (async() => {
       try {
+        displayTitle()
+        displayByPoints()
+        displayByTotalPoints()
 
-        const sortByPts = [...userState].sort(by('pts'))
-
-        const roundScores =
-`*${sortByPts[0].user}* — \`${sortByPts[0].pts}\`
-*${sortByPts[1].user}* — \`${sortByPts[1].pts}\`
-*${sortByPts[2].user}* — \`${sortByPts[2].pts}\``
-
-        const sortByTotalPts = [...userState].sort(by('totalPts'))
-
-        const totalScores =
-`*${sortByTotalPts[0].user}* — \`${sortByTotalPts[0].totalPts}\`
-*${sortByTotalPts[1].user}* — \`${sortByTotalPts[1].totalPts}\`
-*${sortByTotalPts[2].user}* — \`${sortByTotalPts[2].totalPts}\``
-
-        const response =
-`_ROUND SCORES_:
+        const response = `
+${title}
+_ROUND SCORES_:
 ${roundScores}
 
 _LEADERBOARD_:
@@ -192,8 +209,6 @@ slackEvents.on('message', async (e) => {
   channel = e.channel
   console.log('Slack EVENT')
   if (e.text === ':1023:' || e.text === ':1023: ' || e.text === 'a') {
-    // const targetTime = format(new Date(), 'h:mm')
-    const targetTime = '10:23'
     formatSlackTime(e.ts)
 
     if (
@@ -203,7 +218,7 @@ slackEvents.on('message', async (e) => {
       slackTime_m === '30' ||
       slackTime_m === '45'
     ) {
-      console.log(`slackTime: ${slackTime_hm}:${slackTime_s}, targetTime: ${targetTime}`)
+      console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
       if (e.user === alex) {
         updateUserPoints('Alex')
       } else if (e.user === cj) {
@@ -239,8 +254,24 @@ slackEvents.on('message', async (e) => {
       postToSlackAndUpdate()
     }
   }
-  if (e.text === '1023') {
-    await postToSlack('hey, this should be 1023 game stats')
+  if (e.text === '1023') { // If user posts '1023', it will display stats
+
+    const alex = await Player.findOne({ name: 'Alex' })
+    userState[0].totalPts = alex.points
+    const cj = await Player.findOne({ name: 'CJ' })
+    userState[1].totalPts = cj.points
+    const john = await Player.findOne({ name: 'John' })
+    userState[2].totalPts = john.points
+
+    displayTitle()
+    displayByTotalPoints()
+
+    const response =`
+${title}
+_LEADERBOARD_:
+${totalScores}`
+
+    await postToSlack(response)
   }
 })
 // **END** SLACK INTERACTION
