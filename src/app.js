@@ -28,10 +28,9 @@ const alex = 'U1FA8UTV2'
 const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
 const line = '————————————————'
+const channel = 'G6C3FD3V5' // Alex-CJ-John DM
 let slackTime_hm
-let slackTime_m
 let slackTime_s
-let channel
 let winners = 0
 let timeout = 0
 let userState = [{
@@ -58,7 +57,6 @@ let userState = [{
 const formatSlackTime = (timeFromSlack) => {
   const timeFull = fromUnixTime(timeFromSlack)
   slackTime_hm = format(timeFull, 'h:mm')
-  slackTime_m = format(timeFull, 'mm')
   slackTime_s = format(timeFull, 'ss')
 }
 
@@ -206,18 +204,11 @@ ${totalScores}`
 // %%%%%%%%%%%%%%%%%%%%%%%
 // SLACK INTERACTION
 slackEvents.on('message', async (e) => {
-  channel = e.channel
   console.log('Slack EVENT')
-  if (e.text === ':1023:' || e.text === ':1023: ' || e.text === 'a') {
+  if (e.text === ':1023:' || e.text === ':1023: ') {
     formatSlackTime(e.ts)
 
-    if (
-      slackTime_hm === '10:23' ||
-      slackTime_m === '00' ||
-      slackTime_m === '15' ||
-      slackTime_m === '30' ||
-      slackTime_m === '45'
-    ) {
+    if (slackTime_hm === '10:23') {
       console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
       if (e.user === alex) {
         updateUserPoints('Alex')
