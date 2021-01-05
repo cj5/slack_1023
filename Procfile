@@ -1,1 +1,1 @@
-web: forever src/app.js
+web: forever -c \"node --exitcrash\" src/app.js
