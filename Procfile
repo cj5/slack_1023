@@ -1,1 +1,1 @@
-web: forever node app.js
+web: start
