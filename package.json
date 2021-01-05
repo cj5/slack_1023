@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
-    "start": "node src/app.js",
+    "start": "forever src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
@@ -20,9 +20,7 @@
     "express": "^4.17.1",
     "forever": "^3.0.4",
     "mongodb": "^3.6.3",
-    "mongoose": "^5.11.8"
-  },
-  "devDependencies": {
+    "mongoose": "^5.11.8",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.6"
   }

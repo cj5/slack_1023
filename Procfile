@@ -1,1 +1,1 @@
-web: forever start
+web: serve
