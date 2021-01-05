@@ -1,1 +1,1 @@
-web: forever -c \"node --exitcrash\" src/app.js
+web: forever -c \"nodemon --exitcrash\" src/app.js
