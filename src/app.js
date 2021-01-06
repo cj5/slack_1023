@@ -268,6 +268,10 @@ ${totalScores}`
 // **END** SLACK INTERACTION
 // %%%%%%%%%%%%%%%%%%%%%%%
 
+app.post('/', (req, res) => {
+  res.send('1023 game app')
+})
+
 app.listen(port, '0.0.0.0', () => {
   console.log('Express app is up')
 })
