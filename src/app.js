@@ -121,7 +121,7 @@ const updateUserTotalPoints = async (user, pts) => {
       }
     })
   } catch(err) {
-    console.log('error in updateUserTotalPoints()', err)s
+    console.log('error in updateUserTotalPoints()', err)
   }
 }
 
