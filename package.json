@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "forever -c node src/app.js",
+    "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
     "start": "forever -c node src/app.js"
   },
   "author": "Chris Stack | chrisstack.co",
@@ -16,7 +16,7 @@
     "@slack/events-api": "^2.3.4",
     "@slack/web-api": "^5.14.0",
     "date-fns": "^2.16.1",
-    "date-fns-timezone": "^0.1.4",
+    "date-fns-tz": "^1.0.12",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "forever": "^3.0.4",

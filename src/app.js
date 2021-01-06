@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
-const { utcToZonedTime, format } = require('date-fns-timezone')
+const { utcToZonedTime, format } = require('date-fns-tz')
 const fromUnixTime = require('date-fns/fromUnixTime')
 
 const { WebClient } = require('@slack/web-api')
@@ -24,7 +24,7 @@ const Rounds = db.Rounds
 // %%%%%%%%%%%%%%%%%%%%%%%
 // GLOBAL VARIABLES
 // test user CJ2 = 'U01HD50K9HB'
-// test channel CJ-CJ-2 = 'D01HG7L8V4J'
+// test channel CJ-CJ2 = 'D01HG7L8V4J'
 const alex = 'U1FA8UTV2'
 const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
