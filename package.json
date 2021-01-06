@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
-    "start": "forever node src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-prebuild": "echo This runs before Heroku installs dependencies.",
+    "heroku-postbuild": "echo This runs after Heroku installs dependencies, but before Heroku prunes and caches dependencies.",
+    "heroku-cleanup": "echo This runs after Heroku prunes and caches dependencies."
   },
   "author": "Chris Stack | chrisstack.co",
   "license": "ISC",
@@ -21,6 +23,8 @@
     "forever": "^3.0.4",
     "mongodb": "^3.6.3",
     "mongoose": "^5.11.8",
+  },
+  "devDependencies": {
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.6"
   }
