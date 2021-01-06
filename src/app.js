@@ -24,13 +24,11 @@ const Rounds = db.Rounds
 // %%%%%%%%%%%%%%%%%%%%%%%
 // GLOBAL VARIABLES
 // test user CJ2 = 'U01HD50K9HB'
-// const alex = 'U1FA8UTV2'
-const alex = 'U01HD50K9HB'
+const alex = 'U1FA8UTV2'
 const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
 const line = '————————————————'
-// const channel = 'G6C3FD3V5' // Alex-CJ-John DM
-const channel = 'D01HG7L8V4J' // CJ-CJ2
+const channel = 'G6C3FD3V5' // Alex-CJ-John DM
 let slackTime_hm
 let slackTime_s
 let winners = 0
@@ -207,11 +205,10 @@ ${totalScores}`
 // SLACK INTERACTION
 slackEvents.on('message', async (e) => {
   console.log('Slack EVENT')
-  console.log('channel:', e.channel)
   if (e.text === ':1023:' || e.text === ':1023: ') {
     formatSlackTime(e.ts)
 
-    if (slackTime_hm === '10:23' || slackTime_hm === '12:35') {
+    if (slackTime_hm === '10:23') {
       console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
       if (e.user === alex) {
         updateUserPoints('Alex')
