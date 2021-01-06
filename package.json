@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "node src/app.js",
+    "serve": "forever start -c \"nodemon --exitcrash\" src/app.js",
     "start": "npm serve"
   },
   "author": "Chris Stack | chrisstack.co",
