@@ -62,19 +62,27 @@ const formatSlackTime = (timeFromSlack) => {
 }
 
 const updatePlayerPoints = async (user, pts) => {
-  const doc = await Player.findOne({ name: user })
-  let totalPts = doc.points += pts
-  await Player.findOneAndUpdate(
-    { name: user },
-    { points: totalPts },
-    { new: true },
-  )
+  try {
+    const doc = await Player.findOne({ name: user })
+    let totalPts = doc.points += pts
+    await Player.findOneAndUpdate(
+      { name: user },
+      { points: totalPts },
+      { new: true },
+    )
+  } catch(err) {
+    console.log('error in updatePlayerPoints()', err)
+  }
 }
 
 const updateAllPlayerPoints = async () => {
-  await updatePlayerPoints('Alex', userState[0].pts)
-  await updatePlayerPoints('CJ', userState[1].pts)
-  await updatePlayerPoints('John', userState[2].pts)
+  try {
+    await updatePlayerPoints('Alex', userState[0].pts)
+    await updatePlayerPoints('CJ', userState[1].pts)
+    await updatePlayerPoints('John', userState[2].pts)
+  } catch(err) {
+    console.log('error in updateAllPlayerPoints()', err)
+  }
 }
 
 const updateUserPenalty = (user) => {
@@ -104,30 +112,42 @@ const updateUserPoints = (user) => {
 }
 
 const updateUserTotalPoints = async (user, pts) => {
-  const doc = await Player.findOne({ name: user })
-  let totalPts = doc.points += pts
-  userState.map(x => {
-    if (x.user === user) {
-      x.totalPts = totalPts
-    }
-  })
+  try {
+    const doc = await Player.findOne({ name: user })
+    let totalPts = doc.points += pts
+    userState.map(x => {
+      if (x.user === user) {
+        x.totalPts = totalPts
+      }
+    })
+  } catch(err) {
+    console.log('error in updateUserTotalPoints()', err)s
+  }
 }
 
 const updateAllUserTotalPoints = async () => {
-  await updateUserTotalPoints('Alex', userState[0].pts)
-  await updateUserTotalPoints('CJ', userState[1].pts)
-  await updateUserTotalPoints('John', userState[2].pts)
+  try {
+    await updateUserTotalPoints('Alex', userState[0].pts)
+    await updateUserTotalPoints('CJ', userState[1].pts)
+    await updateUserTotalPoints('John', userState[2].pts)
+  } catch(err) {
+    console.log('error in updateAllUserTotalPoints', err)
+  }
 }
 
 const updateRoundsPlayed = async () => {
-  const rounds = await Rounds.findById(db.RoundsID).exec()
-  let roundsPlayed = rounds.played
-  console.log('prev rounds played:', roundsPlayed)
-  roundsPlayed++
-  await Rounds.updateOne(
-    { played: roundsPlayed }
-  )
-  console.log('curr rounds played:', roundsPlayed)
+  try {
+    const rounds = await Rounds.findById(db.RoundsID).exec()
+    let roundsPlayed = rounds.played
+    console.log('prev rounds played:', roundsPlayed)
+    roundsPlayed++
+    await Rounds.updateOne(
+      { played: roundsPlayed }
+    )
+    console.log('curr rounds played:', roundsPlayed)
+  } catch(err) {
+    console.log('error in updateRoundsPlayed()', err)
+  }
 }
 
 const by = (property) => {
@@ -143,7 +163,11 @@ const by = (property) => {
 }
 
 const postToSlack = async (text) => {
-  web.chat.postMessage({ text, channel })
+  try {
+    web.chat.postMessage({ text, channel })
+  } catch(err) {
+    console.log('error in postToSlack()', err)
+  }
 }
 
 const displayTitle = () => {
@@ -205,71 +229,75 @@ ${totalScores}`
 // %%%%%%%%%%%%%%%%%%%%%%%
 // SLACK INTERACTION
 slackEvents.on('message', async (e) => {
-  console.log('Slack EVENT')
-  console.log('channel:', e.channel)
-  if (e.text === ':1023:' || e.text === ':1023: ') {
-    formatSlackTime(e.ts)
+  try {
+    console.log('Slack EVENT')
+    console.log('channel:', e.channel)
+    if (e.text === ':1023:' || e.text === ':1023: ') {
+      formatSlackTime(e.ts)
 
-    if (slackTime_hm === '10:23' || slackTime_hm === '12:47') {
-      console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
-      if (e.user === alex) {
-        updateUserPoints('Alex')
-      } else if (e.user === cj) {
-        updateUserPoints('CJ')
-      } else if (e.user === john) {
-        updateUserPoints('John')
+      if (slackTime_hm === '10:23' || slackTime_hm === '12:47') {
+        console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
+        if (e.user === alex) {
+          updateUserPoints('Alex')
+        } else if (e.user === cj) {
+          updateUserPoints('CJ')
+        } else if (e.user === john) {
+          updateUserPoints('John')
+        }
+
+        await updateAllUserTotalPoints()
+        postToSlackAndUpdate()
+
+      } else { // User posted outside 10:23
+
+        const penaltyMsg = `posted outside of 10:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
+        const penaltyEmoji = ':no_entry_sign:'
+
+        if (e.user === alex) {
+          await postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
+          updateUserPenalty('Alex')
+          updateUserPoints('Alex')
+        } else if (e.user === cj) {
+          await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
+          updateUserPenalty('CJ')
+          updateUserPoints('CJ')
+        } else if (e.user === john) {
+          await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
+          updateUserPenalty('John')
+          updateUserPoints('John')
+        }
+
+        await updateAllUserTotalPoints()
+        await updateRoundsPlayed()
+        postToSlackAndUpdate()
       }
-
-      await updateAllUserTotalPoints()
-      postToSlackAndUpdate()
-
-    } else { // User posted outside 10:23
-
-      const penaltyMsg = `posted outside of 10:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
-      const penaltyEmoji = ':no_entry_sign:'
-
-      if (e.user === alex) {
-        await postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
-        updateUserPenalty('Alex')
-        updateUserPoints('Alex')
-      } else if (e.user === cj) {
-        await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
-        updateUserPenalty('CJ')
-        updateUserPoints('CJ')
-      } else if (e.user === john) {
-        await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
-        updateUserPenalty('John')
-        updateUserPoints('John')
-      }
-
-      await updateAllUserTotalPoints()
-      await updateRoundsPlayed()
-      postToSlackAndUpdate()
     }
-  }
-  if (e.text === '1023') { // If user posts '1023', it will display stats
+    if (e.text === '1023') { // If user posts '1023', it will display stats
 
-    const alex = await Player.findOne({ name: 'Alex' })
-    userState[0].totalPts = alex.points
-    const cj = await Player.findOne({ name: 'CJ' })
-    userState[1].totalPts = cj.points
-    const john = await Player.findOne({ name: 'John' })
-    userState[2].totalPts = john.points
+      const alex = await Player.findOne({ name: 'Alex' })
+      userState[0].totalPts = alex.points
+      const cj = await Player.findOne({ name: 'CJ' })
+      userState[1].totalPts = cj.points
+      const john = await Player.findOne({ name: 'John' })
+      userState[2].totalPts = john.points
 
-    displayTitle()
-    displayByTotalPoints()
+      displayTitle()
+      displayByTotalPoints()
 
-    const response =`
-${title}
-_LEADERBOARD_:
-${totalScores}`
+      const response =`
+  ${title}
+  _LEADERBOARD_:
+  ${totalScores}`
 
-    await postToSlack(response)
+      await postToSlack(response)
+    }
+  } catch(err) {
+    console.log('error in Slack event', err)
   }
 })
 // **END** SLACK INTERACTION
 // %%%%%%%%%%%%%%%%%%%%%%%
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log('Express app is up')
 })
