@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "forever --minUptime 5000 --spinSleepTime 3000 src/app.js",
-    "serve": "forever --minUptime 5000 --spinSleepTime 3000 src/app.js",
+    "serve": "forever node src/app.js",
+    "start": "forever node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
