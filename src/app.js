@@ -264,6 +264,10 @@ ${totalScores}`
 
     await postToSlack(response)
   }
+
+  app.post('/', (req, res) => {
+    res.send('1023 game app')
+  })
 })
 // **END** SLACK INTERACTION
 // %%%%%%%%%%%%%%%%%%%%%%%
