@@ -285,9 +285,9 @@ slackEvents.on('message', async (e) => {
         displayByTotalPoints()
 
         const response =`
-    ${title}
-    _LEADERBOARD_:
-    ${totalScores}`
+${title}
+_LEADERBOARD_:
+${totalScores}`
 
         await postToSlack(response)
       }
