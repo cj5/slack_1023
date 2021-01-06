@@ -29,7 +29,8 @@ const alex = 'U1FA8UTV2'
 const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
 const line = '————————————————'
-const channel = 'G6C3FD3V5' // Alex-CJ-John DM
+// const channel = 'G6C3FD3V5' // Alex-CJ-John DM
+const channel = 'D01HG7L8V4J'
 let slackTime_hm
 let slackTime_s
 let winners = 0
@@ -58,10 +59,13 @@ let userState = [{
 const formatSlackTime = (timeFromSlack) => {
   let timeFull = fromUnixTime(timeFromSlack)
   slackTime_hm = format(timeFull, 'h:mm')
-  console.log('1:', slackTime_hm)
-  slackTime_hm = utcToZonedTime(slackTime_hm, 'America/Chicago')
-  console.log('2:', slackTime_hm)
-  slackTime_s = format(timeFull, 'ss')
+  console.log('slackTime_hm', slackTime_hm)
+
+  let timeFullCST = utcToZonedTime(timeFull, 'America/Chicago')
+  slackTime_hm = format(timeFullCST, 'h:mm')
+  console.log('slackTime_hm CST', slackTime_hm)
+
+  slackTime_s = format(timeFullCST, 'ss')
 }
 
 const updatePlayerPoints = async (user, pts) => {
