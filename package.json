@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "forever node src/app.js",
-    "start": "forever node src/app.js",
+    "serve": "forever -c node src/app.js",
+    "start": "forever -c node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chris Stack | chrisstack.co",
