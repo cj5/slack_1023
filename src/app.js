@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
-const { format } = require('date-fns')
+const { utcToZonedTime, format } = require('date-fns-timezone')
 const fromUnixTime = require('date-fns/fromUnixTime')
 
 const { WebClient } = require('@slack/web-api')
@@ -56,7 +56,8 @@ let userState = [{
 // %%%%%%%%%%%%%%%%%%%%%%%
 // FUNCTIONS
 const formatSlackTime = (timeFromSlack) => {
-  const timeFull = fromUnixTime(timeFromSlack)
+  let timeFull = fromUnixTime(timeFromSlack)
+  utcToZonedTime(timeFull, 'America/Chicago')
   slackTime_hm = format(timeFull, 'h:mm')
   slackTime_s = format(timeFull, 'ss')
 }
