@@ -231,64 +231,66 @@ ${totalScores}`
 slackEvents.on('message', async (e) => {
   try {
     console.log('Slack EVENT')
-    if (e.text === ':1023:' || e.text === ':1023: ') {
-      formatSlackTime(e.ts)
+    if (e.channel === channel) {
+      if (e.text === ':1023:' || e.text === ':1023: ') {
+        formatSlackTime(e.ts)
 
-      if (slackTime_hm === '10:23') {
-        console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
-        if (e.user === alex) {
-          updateUserPoints('Alex')
-        } else if (e.user === cj) {
-          updateUserPoints('CJ')
-        } else if (e.user === john) {
-          updateUserPoints('John')
+        if (slackTime_hm === '10:23') {
+          console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
+          if (e.user === alex) {
+            updateUserPoints('Alex')
+          } else if (e.user === cj) {
+            updateUserPoints('CJ')
+          } else if (e.user === john) {
+            updateUserPoints('John')
+          }
+
+          await updateAllUserTotalPoints()
+          postToSlackAndUpdate()
+
+        } else { // User posted outside 10:23
+
+          const penaltyMsg = `posted outside of 10:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
+          const penaltyEmoji = ':no_entry_sign:'
+
+          if (e.user === alex) {
+            await postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
+            updateUserPenalty('Alex')
+            updateUserPoints('Alex')
+          } else if (e.user === cj) {
+            await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
+            updateUserPenalty('CJ')
+            updateUserPoints('CJ')
+          } else if (e.user === john) {
+            await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
+            updateUserPenalty('John')
+            updateUserPoints('John')
+          }
+
+          await updateAllUserTotalPoints()
+          await updateRoundsPlayed()
+          postToSlackAndUpdate()
         }
-
-        await updateAllUserTotalPoints()
-        postToSlackAndUpdate()
-
-      } else { // User posted outside 10:23
-
-        const penaltyMsg = `posted outside of 10:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
-        const penaltyEmoji = ':no_entry_sign:'
-
-        if (e.user === alex) {
-          await postToSlack(`${penaltyEmoji} Alex ${penaltyMsg}`)
-          updateUserPenalty('Alex')
-          updateUserPoints('Alex')
-        } else if (e.user === cj) {
-          await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
-          updateUserPenalty('CJ')
-          updateUserPoints('CJ')
-        } else if (e.user === john) {
-          await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
-          updateUserPenalty('John')
-          updateUserPoints('John')
-        }
-
-        await updateAllUserTotalPoints()
-        await updateRoundsPlayed()
-        postToSlackAndUpdate()
       }
-    }
-    if (e.text === '1023') { // If user posts '1023', it will display stats
+      if (e.text === '1023') { // If user posts '1023', it will display stats
 
-      const alex = await Player.findOne({ name: 'Alex' })
-      userState[0].totalPts = alex.points
-      const cj = await Player.findOne({ name: 'CJ' })
-      userState[1].totalPts = cj.points
-      const john = await Player.findOne({ name: 'John' })
-      userState[2].totalPts = john.points
+        const alex = await Player.findOne({ name: 'Alex' })
+        userState[0].totalPts = alex.points
+        const cj = await Player.findOne({ name: 'CJ' })
+        userState[1].totalPts = cj.points
+        const john = await Player.findOne({ name: 'John' })
+        userState[2].totalPts = john.points
 
-      displayTitle()
-      displayByTotalPoints()
+        displayTitle()
+        displayByTotalPoints()
 
-      const response =`
-  ${title}
-  _LEADERBOARD_:
-  ${totalScores}`
+        const response =`
+    ${title}
+    _LEADERBOARD_:
+    ${totalScores}`
 
-      await postToSlack(response)
+        await postToSlack(response)
+      }
     }
   } catch(err) {
     console.log('error in Slack event', err)
