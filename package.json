@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "serve": "forever -c node src/app.js",
-    "start": "npm serve"
+    "start": "forever -c node src/app.js"
   },
   "author": "Chris Stack | chrisstack.co",
   "license": "ISC",
