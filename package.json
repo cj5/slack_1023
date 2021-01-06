@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    // "serve": "forever start -l \"nodemon --exitcrash\" src/app.js",
     "serve": "node src/app.js",
     "start": "npm serve"
   },
