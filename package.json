@@ -4,12 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "forever -c \"nodemon --exitcrash\" src/app.js",
-    "start": "npm serve",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-prebuild": "echo This runs before Heroku installs dependencies.",
-    "heroku-postbuild": "echo This runs after Heroku installs dependencies, but before Heroku prunes and caches dependencies.",
-    "heroku-cleanup": "echo This runs after Heroku prunes and caches dependencies."
+    // "serve": "forever start -l \"nodemon --exitcrash\" src/app.js",
+    "serve": "node src/app.js",
+    "start": "npm serve"
   },
   "author": "Chris Stack | chrisstack.co",
   "license": "ISC",
