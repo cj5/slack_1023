@@ -11,6 +11,8 @@ const { createEventAdapter } = require('@slack/events-api')
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET
 const slackEvents = createEventAdapter(slackSigningSecret)
 const penaltyVal = 120
+app.get('/', (req, res) => res.send('1023 game app'))
+app.post('/', (req, res) => res.send('1023 game app'))
 app.use('/', slackEvents.requestListener())
 
 // %%%%%%%%%%%%%%%%%%%%%%%
@@ -268,6 +270,6 @@ ${totalScores}`
 // **END** SLACK INTERACTION
 // %%%%%%%%%%%%%%%%%%%%%%%
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log('Express app is up')
 })
