@@ -20,9 +20,7 @@
     "express": "^4.17.1",
     "forever": "^3.0.4",
     "mongodb": "^3.6.3",
-    "mongoose": "^5.11.8"
-  },
-  "devDependencies": {
+    "mongoose": "^5.11.8",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.6"
   }
