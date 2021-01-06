@@ -57,10 +57,10 @@ let userState = [{
 // FUNCTIONS
 const formatSlackTime = (timeFromSlack) => {
   let timeFull = fromUnixTime(timeFromSlack)
-  console.log('1:', timeFull)
-  utcToZonedTime(timeFull, 'America/Chicago')
-  console.log('2:', timeFull)
   slackTime_hm = format(timeFull, 'h:mm')
+  console.log('1:', slackTime_hm)
+  slackTime_hm = utcToZonedTime(slackTime_hm, 'America/Chicago')
+  console.log('2:', slackTime_hm)
   slackTime_s = format(timeFull, 'ss')
 }
 
