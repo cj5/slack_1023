@@ -4,13 +4,12 @@ const app = express()
 const port = process.env.PORT || 3000
 const { utcToZonedTime, format } = require('date-fns-tz')
 const fromUnixTime = require('date-fns/fromUnixTime')
-
 const { WebClient } = require('@slack/web-api')
 const web = new WebClient(process.env.SLACK_OATH_TOKEN)
 const { createEventAdapter } = require('@slack/events-api')
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET
 const slackEvents = createEventAdapter(slackSigningSecret)
-const penaltyVal = 120
+
 app.use('/', slackEvents.requestListener())
 
 // %%%%%%%%%%%%%%%%%%%%%%%
@@ -30,6 +29,7 @@ const cj = 'U1ESXHU6S'
 const john = 'U6AFFTWTH'
 const line = '————————————————'
 const channel = 'G6C3FD3V5' // Alex-CJ-John DM
+const penaltyVal = 120
 let slackTime_hm
 let slackTime_s
 let winners = 0
@@ -216,8 +216,8 @@ ${totalScores}`
         await postToSlack(response)
         await updateAllPlayerPoints()
         await updateRoundsPlayed()
-
         process.exit(1)
+
       } catch (err) {
         console.log('ERROR:', err)
       }
@@ -237,6 +237,7 @@ slackEvents.on('message', async (e) => {
         formatSlackTime(e.ts)
 
         if (slackTime_hm === '10:23') {
+
           console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
           if (e.user === alex) {
             updateUserPoints('Alex')
@@ -269,7 +270,6 @@ slackEvents.on('message', async (e) => {
           }
 
           await updateAllUserTotalPoints()
-          await updateRoundsPlayed()
           postToSlackAndUpdate()
         }
       }
