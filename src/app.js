@@ -234,7 +234,7 @@ ${totalScores}`
 slackEvents.on('message', async (e) => {
   try {
     formatSlackTime(e.ts)
-    console.log('Slack EVENT', '— slackTime_hms')
+    console.log('Slack EVENT —', slackTime_hms)
 
     if (e.channel === channel) {
       if (e.text === ':1023:' || e.text === ':1023: ') {
