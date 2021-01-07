@@ -198,6 +198,7 @@ ${line}`
 }
 
 const postToSlackAndUpdate = () => {
+  console.log('postToSlackAndUpdate()')
   setTimeout(() => {
     (async() => {
       try {
@@ -235,10 +236,10 @@ slackEvents.on('message', async (e) => {
     if (e.channel === channel) {
       if (e.text === ':1023:' || e.text === ':1023: ') {
         formatSlackTime(e.ts)
+        console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
 
         if (slackTime_hm === '10:23') {
 
-          console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
           if (e.user === alex) {
             updateUserPoints('Alex')
           } else if (e.user === cj) {
