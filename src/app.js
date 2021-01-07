@@ -58,6 +58,7 @@ let userState = [{
 const formatSlackTime = (timeFromSlack) => {
   let timeFull = fromUnixTime(timeFromSlack)
   let timeFullCST = utcToZonedTime(timeFull, 'America/Chicago')
+  slackTime_hms = format(timeFullCST, 'h:mm:ss')
   slackTime_hm = format(timeFullCST, 'h:mm')
   slackTime_s = format(timeFullCST, 'ss')
 }
@@ -232,12 +233,11 @@ ${totalScores}`
 // SLACK INTERACTION
 slackEvents.on('message', async (e) => {
   try {
-    console.log('Slack EVENT')
+    formatSlackTime(e.ts)
+    console.log('Slack EVENT', '— slackTime_hms')
+
     if (e.channel === channel) {
       if (e.text === ':1023:' || e.text === ':1023: ') {
-        formatSlackTime(e.ts)
-        console.log(`slackTime: ${slackTime_hm}:${slackTime_s}`)
-
         if (slackTime_hm === '10:23') {
 
           if (e.user === alex) {
