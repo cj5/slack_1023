@@ -253,7 +253,7 @@ slackEvents.on('message', async (e) => {
 
         } else { // User posted outside 10:23
 
-          const penaltyMsg = `posted outside of 10:23 at ${slackTime_hm}:${slackTime_s} and will be deducted ${penaltyVal} points`
+          const penaltyMsg = `posted outside of 10:23 at ${slackTime_hms} and will be deducted ${penaltyVal} points`
           const penaltyEmoji = ':no_entry_sign:'
 
           if (e.user === alex) {
