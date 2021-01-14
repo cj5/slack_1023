@@ -192,9 +192,9 @@ const displayByTotalPoints = () => {
   const sortByTotalPts = [...userState].sort(by('totalPts'))
 
   return totalScores = `
-*${sortByTotalPts[0].user}* — \`${sortByTotalPts[0].totalPts}\`
-*${sortByTotalPts[1].user}* — \`${sortByTotalPts[1].totalPts}\`
-*${sortByTotalPts[2].user}* — \`${sortByTotalPts[2].totalPts}\`
+*${sortByTotalPts[0].user}* — \`${sortByTotalPts[0].totalPts}\`  :first_place_medal:
+*${sortByTotalPts[1].user}* — \`${sortByTotalPts[1].totalPts}\`  :second_place_medal:
+*${sortByTotalPts[2].user}* — \`${sortByTotalPts[2].totalPts}\`  :third_place_medal:
 ${line}`
 }
 
