@@ -40,7 +40,7 @@ let userState = [{
   totalPts: 0,
   penalty: false,
 }, {
-  user: 'CJ',
+  user: 'CJ__',
   pts: 0,
   totalPts: 0,
   penalty: false,
@@ -80,7 +80,7 @@ const updatePlayerPoints = async (user, pts) => {
 const updateAllPlayerPoints = async () => {
   try {
     await updatePlayerPoints('Alex', userState[0].pts)
-    await updatePlayerPoints('CJ', userState[1].pts)
+    await updatePlayerPoints('CJ__', userState[1].pts)
     await updatePlayerPoints('John', userState[2].pts)
   } catch(err) {
     console.log('error in updateAllPlayerPoints()', err)
@@ -130,7 +130,7 @@ const updateUserTotalPoints = async (user, pts) => {
 const updateAllUserTotalPoints = async () => {
   try {
     await updateUserTotalPoints('Alex', userState[0].pts)
-    await updateUserTotalPoints('CJ', userState[1].pts)
+    await updateUserTotalPoints('CJ__', userState[1].pts)
     await updateUserTotalPoints('John', userState[2].pts)
   } catch(err) {
     console.log('error in updateAllUserTotalPoints', err)
@@ -243,7 +243,7 @@ slackEvents.on('message', async (e) => {
           if (e.user === alex) {
             updateUserPoints('Alex')
           } else if (e.user === cj) {
-            updateUserPoints('CJ')
+            updateUserPoints('CJ__')
           } else if (e.user === john) {
             updateUserPoints('John')
           }
@@ -262,8 +262,8 @@ slackEvents.on('message', async (e) => {
             updateUserPoints('Alex')
           } else if (e.user === cj) {
             await postToSlack(`${penaltyEmoji} CJ ${penaltyMsg}`)
-            updateUserPenalty('CJ')
-            updateUserPoints('CJ')
+            updateUserPenalty('CJ__')
+            updateUserPoints('CJ__')
           } else if (e.user === john) {
             await postToSlack(`${penaltyEmoji} John ${penaltyMsg}`)
             updateUserPenalty('John')
@@ -278,7 +278,7 @@ slackEvents.on('message', async (e) => {
 
         const alex = await Player.findOne({ name: 'Alex' })
         userState[0].totalPts = alex.points
-        const cj = await Player.findOne({ name: 'CJ' })
+        const cj = await Player.findOne({ name: 'CJ__' })
         userState[1].totalPts = cj.points
         const john = await Player.findOne({ name: 'John' })
         userState[2].totalPts = john.points
